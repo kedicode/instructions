@@ -1,6 +1,7 @@
 # **Take-Home Project: AI-Powered Alcohol Label Verification App**
 
 > **Implementation plan:** See [the seven-hour MVP delivery plan](docs/MVP_PLAN.md) for the agreed scope, architecture, schedule, tests, and Azure handoff.
+> **Approach and rationale:** See [the application approach and architecture rationale](docs/APPLICATION_APPROACH.md) for the solution outline, technology decisions, example data, and future workflow enhancements.
 
 
 ## Working MVP
