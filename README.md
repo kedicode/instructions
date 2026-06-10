@@ -1,5 +1,54 @@
 # **Take-Home Project: AI-Powered Alcohol Label Verification App**
 
+> **Implementation plan:** See [the seven-hour MVP delivery plan](docs/MVP_PLAN.md) for the agreed scope, architecture, schedule, tests, and Azure handoff.
+
+
+## Working MVP
+
+The repository now includes a Java 21 Spring Boot prototype that compares an uploaded alcohol label with an expected brand name and ABV. It also checks for the canonical government warning. Results are decision support only: the application reports **Pass**, **Review**, or **Unable to process**, and a reviewer makes the final determination.
+
+### Run locally in demo mode
+
+Demo mode exercises the complete UI and verification rules without an Azure account. It accepts any valid JPG or PNG and supplies a built-in sample OCR result.
+
+```bash
+mvn spring-boot:run
+```
+
+Open <http://localhost:8080>, leave the sample values in place, choose any local JPG or PNG image, and select **Verify label**. Demo mode validates the upload but uses built-in OCR text, so the image contents do not affect the result.
+
+### Run with Azure OCR
+
+Create an Azure Vision resource that supports Image Analysis, then set these variables in your shell or in Azure App Service application settings:
+
+```bash
+export OCR_MODE=azure
+export AZURE_VISION_ENDPOINT="https://<resource-name>.cognitiveservices.azure.com"
+export AZURE_VISION_KEY="<resource-key>"
+mvn spring-boot:run
+```
+
+Never commit the key. The adapter calls the synchronous Image Analysis Read endpoint with a four-second connection/read timeout. Uploaded image bytes are held only for the request and are not persisted.
+
+### Test and package
+
+```bash
+mvn test
+mvn package
+java -jar target/label-verifier-0.0.1-SNAPSHOT.jar
+```
+
+The default automated tests use fake or fixture OCR responses and do not need Azure credentials. The executable JAR can be deployed to an Azure App Service configured with a Java SE runtime. Configure the three environment variables above before starting the deployed application.
+
+### Current scope and limitations
+
+- Supports one JPG or PNG image up to 5 MB.
+- Verifies brand name, numeric ABV, and government-warning wording.
+- Brand comparison ignores case, repeated whitespace, and straight versus typographic apostrophes.
+- Does not verify bold type, font size, warning placement, or other visual layout rules.
+- Does not support batch uploads, persistence, authentication, COLA integration, or beverage-specific exceptions.
+- Demo mode does not inspect the selected image; use Azure mode for real OCR.
+
 ## **Project Background & Stakeholder Context**
 
 *The following document contains notes from our discovery sessions with the Compliance Division, along with technical requirements for the prototype. We've included stakeholder feedback to give you context on how this tool will be used.*
@@ -115,4 +164,3 @@ We understand this is time-constrained. A working core application with clean co
 *Questions? Reach out for clarification—though we also value how you fill in gaps independently.*
 
 Good luck!
-```

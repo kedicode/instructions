@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verification result · Alcohol Label Verifier</title>
+    <link rel="stylesheet" th:href="@{/app.css}" href="/app.css">
+</head>
+<body>
+<header class="site-header"><div class="shell header-content"><div class="seal" aria-hidden="true">TTB</div><div><p class="eyebrow">Compliance decision support</p><h1>Alcohol Label Verifier</h1></div></div></header>
+<main class="shell result-layout">
+    <a class="back-link" th:href="@{/}">← Verify another label</a>
+    <section class="result-hero" th:classappend="${result.status.name().toLowerCase()}">
+        <p class="eyebrow">Verification result</p>
+        <div class="result-heading">
+            <div>
+                <h2 th:text="${result.status.displayName}">Review</h2>
+                <p th:if="${result.status.name() == 'PASS'}">All automated checks passed. A reviewer should still make the final determination.</p>
+                <p th:if="${result.status.name() == 'REVIEW'}">One or more items need human attention before a decision is made.</p>
+                <p th:if="${result.status.name() == 'UNABLE_TO_PROCESS'}" th:text="${processingError}">The image could not be processed.</p>
+            </div>
+            <span class="timing" th:text="${result.processingTimeMillis + ' ms'}">1200 ms</span>
+        </div>
+    </section>
+
+    <section th:if="${!result.fields.isEmpty()}" aria-labelledby="checks-heading">
+        <h2 id="checks-heading" class="section-title">Automated checks</h2>
+        <div class="findings">
+            <article class="finding" th:each="field : ${result.fields}" th:classappend="${field.status.name().toLowerCase()}">
+                <div class="finding-status">
+                    <span class="status-icon" aria-hidden="true" th:text="${field.status.name() == 'PASS' ? '✓' : '!'}">✓</span>
+                    <div><p class="eyebrow" th:text="${field.status.displayName}">Pass</p><h3 th:text="${field.field}">Brand name</h3></div>
+                </div>
+                <dl>
+                    <div><dt>Expected</dt><dd th:text="${field.expected}">OLD TOM</dd></div>
+                    <div><dt>Detected</dt><dd th:text="${field.detected}">OLD TOM</dd></div>
+                </dl>
+                <p th:text="${field.explanation}">Explanation</p>
+            </article>
+        </div>
+    </section>
+
+    <details class="ocr-text" th:if="${!result.extractedText.isBlank()}">
+        <summary>View text read from the label</summary>
+        <pre th:text="${result.extractedText}"></pre>
+    </details>
+    <div class="result-actions"><a class="button" th:href="@{/}">Verify another label</a></div>
+</main>
+<footer><div class="shell">Prototype for evaluation · No label data is retained</div></footer>
+</body>
+</html>

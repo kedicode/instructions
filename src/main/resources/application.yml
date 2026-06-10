@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: alcohol-label-verifier
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+app:
+  ocr:
+    mode: ${OCR_MODE:demo}
+    endpoint: ${AZURE_VISION_ENDPOINT:}
+    key: ${AZURE_VISION_KEY:}
+    timeout: 4s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

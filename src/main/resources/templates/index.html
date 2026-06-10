@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alcohol Label Verifier</title>
+    <link rel="stylesheet" th:href="@{/app.css}" href="/app.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="shell header-content">
+        <div class="seal" aria-hidden="true">TTB</div>
+        <div>
+            <p class="eyebrow">Compliance decision support</p>
+            <h1>Alcohol Label Verifier</h1>
+        </div>
+    </div>
+</header>
+<main class="shell">
+    <div class="notice demo" th:if="${demoMode}" role="status">
+        <strong>Demo OCR is active.</strong> Any valid image uses the built-in sample text. Set <code>OCR_MODE=azure</code> to analyze the uploaded image with Azure.
+    </div>
+    <section class="intro">
+        <p class="eyebrow">Single-label review</p>
+        <h2>Compare an application with its label</h2>
+        <p>Enter the values from the application and upload a clear image. The tool checks the brand name, alcohol content, and government warning.</p>
+    </section>
+
+    <form class="card" th:action="@{/verify}" th:object="${form}" method="post" enctype="multipart/form-data" novalidate>
+        <div class="error-summary" th:if="${#fields.hasAnyErrors() or uploadError != null}" role="alert" tabindex="-1">
+            <h3>Check the highlighted information</h3>
+            <ul>
+                <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                <li th:if="${uploadError != null}" th:text="${uploadError}"></li>
+            </ul>
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label for="brandName">Brand name</label>
+                <p class="hint" id="brand-hint">Enter it as shown on the application.</p>
+                <input id="brandName" type="text" th:field="*{brandName}" aria-describedby="brand-hint brand-error"
+                       th:classappend="${#fields.hasErrors('brandName')} ? 'invalid' : ''">
+                <p class="field-error" id="brand-error" th:if="${#fields.hasErrors('brandName')}" th:errors="*{brandName}"></p>
+            </div>
+            <div class="field compact">
+                <label for="abv">Alcohol by volume</label>
+                <p class="hint" id="abv-hint">Enter the percentage without the % sign.</p>
+                <div class="input-suffix">
+                    <input id="abv" type="number" step="0.01" min="0.1" max="100" th:field="*{abv}"
+                           aria-describedby="abv-hint abv-error" th:classappend="${#fields.hasErrors('abv')} ? 'invalid'">
+                    <span aria-hidden="true">%</span>
+                </div>
+                <p class="field-error" id="abv-error" th:if="${#fields.hasErrors('abv')}" th:errors="*{abv}"></p>
+            </div>
+        </div>
+
+        <div class="field upload-field">
+            <label for="labelImage">Label image</label>
+            <p class="hint" id="image-hint">Upload one JPG or PNG image, up to 5 MB.</p>
+            <input id="labelImage" name="labelImage" type="file" accept="image/jpeg,image/png" aria-describedby="image-hint image-error">
+            <p class="field-error" id="image-error" th:if="${uploadError}" th:text="${uploadError}"></p>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Verify label</button>
+            <p>Images are processed for this request and are not stored.</p>
+        </div>
+    </form>
+
+    <aside class="limitations">
+        <h2>What this prototype checks</h2>
+        <ul>
+            <li><strong>Brand:</strong> ignores capitalization and apostrophe style.</li>
+            <li><strong>ABV:</strong> compares the numeric percentage.</li>
+            <li><strong>Warning:</strong> checks the uppercase heading and required wording.</li>
+        </ul>
+        <p>The tool supports human review. It does not make a regulatory decision or verify bold type.</p>
+    </aside>
+</main>
+<footer><div class="shell">Prototype for evaluation · No label data is retained</div></footer>
+</body>
+</html>
